@@ -1,0 +1,1240 @@
+{
+  "info": {
+    "_postman_id": "c3b2f9e4-0000-0000-0000-school-backend",
+    "name": "School Backend API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Get all users",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/users",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users"]
+            }
+          }
+        },
+        {
+          "name": "Create user",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Admin User\",\n  \"email\": \"admin@example.com\",\n  \"password\": \"password123\",\n  \"role\": \"admin\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users"]
+            }
+          }
+        },
+        {
+          "name": "Update user",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated User\",\n  \"email\": \"admin@example.com\",\n  \"role\": \"admin\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete user",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/users/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "School Years",
+      "item": [
+        {
+          "name": "Get all school years",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/school-years",
+              "host": ["{{base_url}}"],
+              "path": ["api", "school-years"]
+            }
+          }
+        },
+        {
+          "name": "Get school year by id",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/school-years/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "school-years", "1"]
+            }
+          }
+        },
+        {
+          "name": "Create school year",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"2024-2025\",\n  \"start_date\": \"2024-09-01\",\n  \"end_date\": \"2025-06-30\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/school-years",
+              "host": ["{{base_url}}"],
+              "path": ["api", "school-years"]
+            }
+          }
+        },
+        {
+          "name": "Update school year",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"2024-2025 Updated\",\n  \"start_date\": \"2024-09-01\",\n  \"end_date\": \"2025-06-30\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/school-years/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "school-years", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete school year",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/school-years/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "school-years", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Terms",
+      "item": [
+        {
+          "name": "Get all terms",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/terms",
+              "host": ["{{base_url}}"],
+              "path": ["api", "terms"]
+            }
+          }
+        },
+        {
+          "name": "Get term by id",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/terms/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "terms", "1"]
+            }
+          }
+        },
+        {
+          "name": "Create term",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"school_year_id\": 1,\n  \"name\": \"Term 1\",\n  \"start_date\": \"2024-09-01\",\n  \"end_date\": \"2025-01-15\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/terms",
+              "host": ["{{base_url}}"],
+              "path": ["api", "terms"]
+            }
+          }
+        },
+        {
+          "name": "Update term",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"school_year_id\": 1,\n  \"name\": \"Term 1 Updated\",\n  \"start_date\": \"2024-09-01\",\n  \"end_date\": \"2025-01-15\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/terms/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "terms", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete term",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/terms/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "terms", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Majors",
+      "item": [
+        {
+          "name": "Get all majors",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/majors",
+              "host": ["{{base_url}}"],
+              "path": ["api", "majors"]
+            }
+          }
+        },
+        {
+          "name": "Get major by id",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/majors/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "majors", "1"]
+            }
+          }
+        },
+        {
+          "name": "Create major",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Computer Science\",\n  \"code\": \"CS\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/majors",
+              "host": ["{{base_url}}"],
+              "path": ["api", "majors"]
+            }
+          }
+        },
+        {
+          "name": "Update major",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Computer Science Updated\",\n  \"code\": \"CS\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/majors/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "majors", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete major",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/majors/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "majors", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Classes",
+      "item": [
+        {
+          "name": "Get all classes",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/classes",
+              "host": ["{{base_url}}"],
+              "path": ["api", "classes"]
+            }
+          }
+        },
+        {
+          "name": "Get class by id",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/classes/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "classes", "1"]
+            }
+          }
+        },
+        {
+          "name": "Create class",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Year 1 - A\",\n  \"grade_level\": 1,\n  \"major_id\": 1,\n  \"school_year_id\": 1,\n  \"term_id\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/classes",
+              "host": ["{{base_url}}"],
+              "path": ["api", "classes"]
+            }
+          }
+        },
+        {
+          "name": "Update class",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Year 1 - A Updated\",\n  \"grade_level\": 1,\n  \"major_id\": 1,\n  \"school_year_id\": 1,\n  \"term_id\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/classes/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "classes", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete class",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/classes/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "classes", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Students",
+      "item": [
+        {
+          "name": "Get all students",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/students",
+              "host": ["{{base_url}}"],
+              "path": ["api", "students"]
+            }
+          }
+        },
+        {
+          "name": "Get students by class",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/students/by-class/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "students", "by-class", "1"]
+            }
+          }
+        },
+        {
+          "name": "Get student by id",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/students/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "students", "1"]
+            }
+          }
+        },
+        {
+          "name": "Create student",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": 2,\n  \"student_code\": \"STU001\",\n  \"class_id\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/students",
+              "host": ["{{base_url}}"],
+              "path": ["api", "students"]
+            }
+          }
+        },
+        {
+          "name": "Update student",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": 2,\n  \"student_code\": \"STU001\",\n  \"class_id\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/students/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "students", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete student",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/students/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "students", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Teachers",
+      "item": [
+        {
+          "name": "Get all teachers",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/teachers",
+              "host": ["{{base_url}}"],
+              "path": ["api", "teachers"]
+            }
+          }
+        },
+        {
+          "name": "Get teacher by id",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/teachers/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "teachers", "1"]
+            }
+          }
+        },
+        {
+          "name": "Create teacher",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": 3,\n  \"employee_code\": \"EMP001\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/teachers",
+              "host": ["{{base_url}}"],
+              "path": ["api", "teachers"]
+            }
+          }
+        },
+        {
+          "name": "Update teacher",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": 3,\n  \"employee_code\": \"EMP001\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/teachers/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "teachers", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete teacher",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/teachers/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "teachers", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Teacher Classes",
+      "item": [
+        {
+          "name": "Get all teacher-class mappings",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/teacher-classes",
+              "host": ["{{base_url}}"],
+              "path": ["api", "teacher-classes"]
+            }
+          }
+        },
+        {
+          "name": "Get teacher-classes by teacher",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/teacher-classes/by-teacher/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "teacher-classes", "by-teacher", "1"]
+            }
+          }
+        },
+        {
+          "name": "Get teacher-class mapping by id",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/teacher-classes/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "teacher-classes", "1"]
+            }
+          }
+        },
+        {
+          "name": "Create teacher-class mapping",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"teacher_id\": 1,\n  \"class_id\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/teacher-classes",
+              "host": ["{{base_url}}"],
+              "path": ["api", "teacher-classes"]
+            }
+          }
+        },
+        {
+          "name": "Update teacher-class mapping",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"teacher_id\": 1,\n  \"class_id\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/teacher-classes/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "teacher-classes", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete teacher-class mapping",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/teacher-classes/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "teacher-classes", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Subjects",
+      "item": [
+        {
+          "name": "Get all subjects",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/subjects",
+              "host": ["{{base_url}}"],
+              "path": ["api", "subjects"]
+            }
+          }
+        },
+        {
+          "name": "Get subject by id",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/subjects/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "subjects", "1"]
+            }
+          }
+        },
+        {
+          "name": "Create subject",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"MATH101\",\n  \"name\": \"Mathematics\",\n  \"credit\": 3\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/subjects",
+              "host": ["{{base_url}}"],
+              "path": ["api", "subjects"]
+            }
+          }
+        },
+        {
+          "name": "Update subject",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"MATH101\",\n  \"name\": \"Math Updated\",\n  \"credit\": 3\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/subjects/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "subjects", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete subject",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/subjects/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "subjects", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Class Subjects",
+      "item": [
+        {
+          "name": "Get all class-subjects",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/class-subjects",
+              "host": ["{{base_url}}"],
+              "path": ["api", "class-subjects"]
+            }
+          }
+        },
+        {
+          "name": "Get class-subjects by class",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/class-subjects/by-class/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "class-subjects", "by-class", "1"]
+            }
+          }
+        },
+        {
+          "name": "Get class-subject by id",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/class-subjects/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "class-subjects", "1"]
+            }
+          }
+        },
+        {
+          "name": "Create class-subject",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"class_id\": 1,\n  \"subject_id\": 1,\n  \"teacher_id\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/class-subjects",
+              "host": ["{{base_url}}"],
+              "path": ["api", "class-subjects"]
+            }
+          }
+        },
+        {
+          "name": "Update class-subject",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"class_id\": 1,\n  \"subject_id\": 1,\n  \"teacher_id\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/class-subjects/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "class-subjects", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete class-subject",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/class-subjects/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "class-subjects", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Rooms",
+      "item": [
+        {
+          "name": "Get all rooms",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/rooms",
+              "host": ["{{base_url}}"],
+              "path": ["api", "rooms"]
+            }
+          }
+        },
+        {
+          "name": "Get room by id",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/rooms/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "rooms", "1"]
+            }
+          }
+        },
+        {
+          "name": "Create room",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Room A\",\n  \"capacity\": 30\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/rooms",
+              "host": ["{{base_url}}"],
+              "path": ["api", "rooms"]
+            }
+          }
+        },
+        {
+          "name": "Update room",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Room A Updated\",\n  \"capacity\": 30\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/rooms/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "rooms", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete room",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/rooms/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "rooms", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Schedules",
+      "item": [
+        {
+          "name": "Get all schedules",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/schedules",
+              "host": ["{{base_url}}"],
+              "path": ["api", "schedules"]
+            }
+          }
+        },
+        {
+          "name": "Get schedules by class",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/schedules/by-class/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "schedules", "by-class", "1"]
+            }
+          }
+        },
+        {
+          "name": "Get schedule by id",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/schedules/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "schedules", "1"]
+            }
+          }
+        },
+        {
+          "name": "Create schedule",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"class_subject_id\": 1,\n  \"room_id\": 1,\n  \"day_of_week\": 1,\n  \"start_time\": \"08:00:00\",\n  \"end_time\": \"09:00:00\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/schedules",
+              "host": ["{{base_url}}"],
+              "path": ["api", "schedules"]
+            }
+          }
+        },
+        {
+          "name": "Update schedule",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"class_subject_id\": 1,\n  \"room_id\": 1,\n  \"day_of_week\": 1,\n  \"start_time\": \"08:00:00\",\n  \"end_time\": \"09:00:00\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/schedules/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "schedules", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete schedule",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/schedules/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "schedules", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Attendance (Students)",
+      "item": [
+        {
+          "name": "Get attendance by schedule",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/attendance/schedule/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "attendance", "schedule", "1"]
+            }
+          }
+        },
+        {
+          "name": "Upsert attendance record",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"schedule_id\": 1,\n  \"student_id\": 1,\n  \"status\": \"present\",\n  \"remark\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/attendance",
+              "host": ["{{base_url}}"],
+              "path": ["api", "attendance"]
+            }
+          }
+        },
+        {
+          "name": "Delete attendance record",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/attendance/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "attendance", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Teacher Attendance",
+      "item": [
+        {
+          "name": "Get teacher attendance by schedule",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/teacher-attendance/schedule/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "teacher-attendance", "schedule", "1"]
+            }
+          }
+        },
+        {
+          "name": "Create teacher attendance",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"schedule_id\": 1,\n  \"date\": 20250101,\n  \"status\": \"present\",\n  \"remark\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/teacher-attendance",
+              "host": ["{{base_url}}"],
+              "path": ["api", "teacher-attendance"]
+            }
+          }
+        },
+        {
+          "name": "Update teacher attendance",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"schedule_id\": 1,\n  \"date\": 20250101,\n  \"status\": \"present\",\n  \"remark\": \"Updated\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/teacher-attendance/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "teacher-attendance", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete teacher attendance",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/teacher-attendance/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "teacher-attendance", "1"]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:4000"
+    },
+    {
+      "key": "token",
+      "value": ""
+    }
+  ]
+}
