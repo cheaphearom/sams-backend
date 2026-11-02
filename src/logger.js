@@ -25,12 +25,17 @@ const logger = createLogger({
   ),
   transports: [
     new transports.Console(),
-    new DailyRotateFile({
-      filename: 'logs/%DATE%-app.log',
-      datePattern: 'YYYY-MM-DD',
-      maxSize: '20m',
-      maxFiles: '14d'
-    })
+    // Vercel's filesystem is read-only, it collects console output instead
+    ...(process.env.VERCEL
+      ? []
+      : [
+          new DailyRotateFile({
+            filename: 'logs/%DATE%-app.log',
+            datePattern: 'YYYY-MM-DD',
+            maxSize: '20m',
+            maxFiles: '14d'
+          })
+        ])
   ]
 });
 
