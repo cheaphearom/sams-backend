@@ -1,3 +1,4 @@
+const path = require('path');
 const swaggerJSDoc = require('swagger-jsdoc');
 
 const options = {
@@ -10,11 +11,12 @@ const options = {
     },
     servers: [
       {
-        url: 'http://localhost:4000/api',
+        // relative, so "Try it out" calls whichever server the docs are opened on (localhost or Vercel)
+        url: '/api',
       },
     ],
   },
-  apis: ['./src/routes/*.js'],
+  apis: [path.join(__dirname, 'routes', '*.js')],
 };
 
 const swaggerSpec = swaggerJSDoc(options);
