@@ -25,6 +25,23 @@ const AttendanceRecords = {
     return rows[0] || null;
   },
 
+  // The student row for a user, and their existing record in a session (if any)
+  async findStudentRecord(attendance_session_id, user_id) {
+    const [students] = await pool.query(
+      'SELECT id, class_id FROM students WHERE user_id = ? LIMIT 1',
+      [user_id]
+    );
+    if (students.length === 0) return { student: null, record: null };
+
+    const [records] = await pool.query(
+      `SELECT id, take_by, reason, approved FROM attendance_records
+       WHERE attendance_session_id = ? AND student_id = ?
+       ORDER BY id DESC LIMIT 1`,
+      [attendance_session_id, students[0].id]
+    );
+    return { student: students[0], record: records[0] || null };
+  },
+
   async upsert({
     schedule_id,
     attendance_session_id,
@@ -71,10 +88,10 @@ const AttendanceRecords = {
       await pool.query(
         `
         UPDATE attendance_records
-        SET status = ?, remark = ?
+        SET status = ?, remark = ?, reason = COALESCE(?, reason), updated_at = NOW()
         WHERE id = ?
         `,
-        [status, remark, id]
+        [status, remark ?? '', reason || null, id]
       );
 
       return this.findById(id);
@@ -87,13 +104,21 @@ const AttendanceRecords = {
         (attendance_session_id, student_id, take_by, status, remark, reason, approved)
       VALUES (?, ?, ?, ?, ?, ?, ?)
       `,
-      [attendance_session_id, student_id, student_id, status, remark, reason, approved]
+      [
+        attendance_session_id,
+        student_id,
+        student_id,
+        status,
+        remark ?? '',
+        reason || 'attendance_records',
+        approved ? 1 : 0,
+      ]
     );
 
     return this.findById(result.insertId);
   },
   
-  async getAllApprovedZero(start_date = null, end_date = null) {
+  async getAllApprovedZero(start_date = null, end_date = null, teacher_id = null) {
     let query = `
       SELECT 
         ar.*,
@@ -130,6 +155,12 @@ const AttendanceRecords = {
     `;
 
     const queryParams = [ ];
+
+    if (teacher_id) {
+      query += ` AND (sc.teacher_id = ? OR EXISTS (
+        SELECT 1 FROM teacher_classes tcl WHERE tcl.class_id = c.id AND tcl.teacher_id = ?))`;
+      queryParams.push(teacher_id, teacher_id);
+    }
 
     // If both start_date and end_date are provided, add date filtering to the query
     if (start_date && end_date) {
@@ -294,6 +325,16 @@ const AttendanceRecords = {
     }
 
     // 3) Insert (or block if already checked-in)
+    const [existing] = await pool.query(
+      'SELECT 1 FROM attendance_records WHERE attendance_session_id = ? AND student_id = ? LIMIT 1',
+      [attendance_session_id, student_id]
+    );
+    if (existing.length) {
+      const err = new Error("You already checked in for this session.");
+      err.statusCode = 409;
+      throw err;
+    }
+
     try {
       const [result] = await pool.query(
         `
@@ -305,7 +346,7 @@ const AttendanceRecords = {
 
       return this.findById(result.insertId);
     } catch (e) {
-      // if you added UNIQUE KEY (attendance_session_id, student_id)
+      // two check-ins at the same moment, stopped by uq_attendance_records_session_student
       if (e.code === "23505") {
         const err = new Error("You already checked in for this session.");
         err.statusCode = 409;
