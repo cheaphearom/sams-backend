@@ -7,7 +7,6 @@ const helmet = require('helmet');
 const path = require('path');
 
 // Swagger setup
-const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./swagger');
 
 // Middleware
@@ -46,6 +45,29 @@ const teacherScheduleRoutes = require("./routes/teacherSchedule.route");
 
 const app = express();
 
+// Swagger documentation, registered before helmet so its CSP doesn't block the CDN files.
+// The Swagger UI files come from a CDN: on Vercel, swagger-ui-express can't serve them
+// from node_modules, which leaves /api/docs as a blank page
+const SWAGGER_UI_CDN = 'https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.17.14';
+app.get('/api/docs.json', (req, res) => res.json(swaggerSpec));
+app.get('/api/docs', (req, res) => {
+  res.send(`<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>SAMS Backend API</title>
+  <link rel="stylesheet" href="${SWAGGER_UI_CDN}/swagger-ui.css">
+</head>
+<body>
+  <div id="swagger-ui"></div>
+  <script src="${SWAGGER_UI_CDN}/swagger-ui-bundle.js"></script>
+  <script>
+    SwaggerUIBundle({ url: '/api/docs.json', dom_id: '#swagger-ui' });
+  </script>
+</body>
+</html>`);
+});
+
 // Global middleware
 app.use(helmet({ crossOriginResourcePolicy: false }));
 app.use(cors());
@@ -54,9 +76,6 @@ app.use(express.json());
 
 // Static files
 app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
-
-// Swagger documentation
-app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Mount routes
 app.use('/api/auth', authRoutes);

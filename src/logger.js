@@ -25,7 +25,7 @@ const logger = createLogger({
   ),
   transports: [
     new transports.Console(),
-    // Vercel's filesystem is read-only, it collects console output instead
+    // Vercel's file system is read-only, creating logs/ there crashes the app, so log to the console only
     ...(process.env.VERCEL
       ? []
       : [
