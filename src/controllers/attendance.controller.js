@@ -2,6 +2,7 @@ const { log } = require('winston');
 const jwt = require('jsonwebtoken');
 const AttendanceRecords = require('../models/attendanceRecords.model');
 const Teachers = require('../models/teachers.model');
+const Attendance = require('../services/attendance.service');
 const {
   assertCanManageClass,
   classIdOfSchedule,
@@ -57,11 +58,10 @@ exports.approved = async (req, res, next) => {
     if (classId == null) return res.status(404).json({ message: 'Attendance record not found' });
     await assertCanManageClass(req.user, classId);
 
-    const data = await AttendanceRecords.approved(id, approved, userId);
+    const ok = await Attendance.setApproval(id, Number(approved) === 1, userId);
+    if (!ok) return res.status(404).json({ message: 'Attendance record not found' });
 
-    if (!data) return res.status(404).json({ message: 'Attendance record not found' });
-
-    res.json(data);
+    res.json(await AttendanceRecords.findById(id));
   } catch (err) {
     next(err);
   }
@@ -81,41 +81,46 @@ exports.upsert = async (req, res, next) => {
     const classId = await classIdOfSession(body.attendance_session_id);
     if (classId == null) return res.status(404).json({ message: 'Attendance session not found' });
 
-    if (req.user.role === 'student') {
+    const isStudent = req.user.role === 'student';
+    if (isStudent) {
       // Never trust who, or the approval, from the request body
       body.user_id = req.user.id;
-      body.approved = 0;
       if (!body.reason || body.reason === 'attendance_records') body.reason = 'other';
-
       if (!STUDENT_REQUEST_STATUSES.includes(body.status)) {
         return res.status(400).json({ message: 'A leave request can only be for absent or late' });
       }
-
-      const { student, record } = await AttendanceRecords.findStudentRecord(
-        body.attendance_session_id,
-        req.user.id
-      );
-      if (!student) return res.status(404).json({ message: 'Student not found for this user' });
-      if (Number(student.class_id) !== Number(classId)) {
-        return res.status(403).json({ message: 'You are not in this class' });
-      }
-
-      // A student may only edit their own request while it is still pending;
-      // anything recorded by a teacher or by the QR scan, or already approved, is locked
-      const ownPendingRequest =
-        record &&
-        Number(record.approved) === 0 &&
-        Number(record.take_by) === Number(student.id) &&
-        record.reason !== 'attendance_records';
-      if (record && !ownPendingRequest) {
-        return res.status(409).json({ message: 'Attendance for this session is already recorded' });
-      }
     } else {
       await assertCanManageClass(req.user, classId);
+      if (!body.user_id) return res.status(400).json({ message: 'user_id of the student is required' });
     }
 
-    const item = await AttendanceRecords.upsert(body);
-    res.status(200).json(item);
+    const { student, record } = await AttendanceRecords.findStudentRecord(
+      body.attendance_session_id,
+      body.user_id
+    );
+    if (!student) return res.status(404).json({ message: 'Student not found for this user' });
+    if (Number(student.class_id) !== Number(classId)) {
+      return res.status(isStudent ? 403 : 400).json({
+        message: isStudent ? 'You are not in this class' : 'This student is not in the session\'s class',
+      });
+    }
+
+    // A student may only change their own request while it is still pending;
+    // a teacher's mark, a QR or face check-in, or an approved record is locked
+    if (isStudent && record && !(record.source === 'request' && Number(record.approved) === 0)) {
+      return res.status(409).json({ message: 'Attendance for this session is already recorded' });
+    }
+
+    const id = await Attendance.recordAttendance({
+      sessionId: body.attendance_session_id,
+      studentId: student.id,
+      status: body.status,
+      remark: body.remark,
+      reason: body.reason,
+      source: isStudent ? 'request' : req.user.role === 'admin' ? 'admin' : 'teacher',
+      markedBy: req.user.id,
+    });
+    res.status(200).json(await AttendanceRecords.findById(id));
   } catch (err) {
     next(err);
   }

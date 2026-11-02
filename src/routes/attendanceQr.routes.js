@@ -3,7 +3,6 @@
   const router = express.Router();
   const controller = require('../controllers/attendanceQr.controller');
   const auth = require('../middleware/auth');
-console.log(controller);
   // Teacher generates QR token for an attendance session
   router.post(
     '/qr/create',

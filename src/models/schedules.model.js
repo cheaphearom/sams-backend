@@ -1,4 +1,5 @@
 const pool = require('../config/db');
+const Attendance = require('../services/attendance.service');
 
 const Schedules = {
   async getAll() {
@@ -83,45 +84,37 @@ const Schedules = {
     // Reset the time to midnight for accurate date comparison
     currentDate.setHours(0, 0, 0, 0);
     let endDate = new Date(end_date);
-    endDate.setHours(0, 0, 0, 0); // Reset time for end_date as well
-    console.log("Start Date:", new Date(start_date));
-    console.log("End Date:", new Date(end_date));
-    console.log("Day of Week:", day_of_week);
-    let index = 0;
-    // Find the first day of the week that matches the schedule's day_of_week
+    endDate.setHours(0, 0, 0, 0);
+
+    // Schedules store Monday = 1 ... Sunday = 7, JavaScript's getDay() has Sunday = 0
+    const isoDay = (d) => d.getDay() || 7;
+    const ymd = (d) =>
+      `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
+    let week = 0;
     while (currentDate <= endDate) {
-      console.log("Checking Date:", currentDate.toISOString());
-      if (currentDate.getDay() === day_of_week) {
-        console.log("Found matching day:", currentDate.toISOString());
-        // Add the session to the array
+      if (isoDay(currentDate) === Number(day_of_week)) {
+        week += 1;
         attendanceSessions.push({
           schedule_id: scheduleId,
-          session_date: new Date(currentDate),
+          session_date: ymd(currentDate), // a plain date, so no time zone can shift it
           start_time,
           end_time,
           status: 'planned',
-          topic: `Week ${index + 1}`
+          topic: `Week ${week}`,
         });
       }
-      currentDate.setDate(currentDate.getDate() + 1); // Move to the next day
+      currentDate.setDate(currentDate.getDate() + 1);
     }
-
 
     if (attendanceSessions.length === 0) {
       throw new Error('No matching days found within the term range.');
     }
 
-    // Step 4: Insert all attendance sessions for the matching days
-    const sessionInsertPromises = attendanceSessions.map(session =>
-      pool.query(
-        `INSERT INTO attendance_sessions 
-          (schedule_id, session_date, start_time, end_time, status, topic)
-        VALUES (?, ?, ?, ?, ?, ?)`,
-        [session.schedule_id, session.session_date, session.start_time, session.end_time, session.status, session.topic]
-      )
-    );
-
-    await Promise.all(sessionInsertPromises);
+    // Step 4: Create the sessions (an existing session for the same day is kept)
+    for (const session of attendanceSessions) {
+      await Attendance.getOrCreateSession(session);
+    }
 
     // Step 5: Return the created schedule along with its attendance sessions
     return this.findById(scheduleId);

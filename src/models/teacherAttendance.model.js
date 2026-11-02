@@ -1,4 +1,5 @@
 const pool = require('../config/db');
+const Attendance = require('../services/attendance.service');
 
 const TeacherAttendance = {
   async getBySchedule(schedule_id) {
@@ -81,17 +82,9 @@ const TeacherAttendance = {
     );
     if (!ok[0]) return null;
 
-    await pool.query(
-      `INSERT INTO attendance_sessions
-         (schedule_id, session_date, start_time, end_time, status, topic, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())
-       ON CONFLICT (schedule_id, session_date) DO UPDATE SET
-         start_time = EXCLUDED.start_time,
-         end_time   = EXCLUDED.end_time,
-         status     = EXCLUDED.status,
-         topic      = EXCLUDED.topic,
-         updated_at = NOW()`,
-      [schedule_id, session_date, start_time || null, end_time || null, status || 'planned', topic || null]
+    await Attendance.getOrCreateSession(
+      { schedule_id, session_date, start_time, end_time, status, topic },
+      { overwrite: true }
     );
 
     const [rows] = await pool.query(
@@ -136,19 +129,13 @@ const TeacherAttendance = {
          s.image,
          ar.status AS attendance_status,
          ar.remark AS remark,
+         ar.source AS attendance_source,
+         ar.approved AS attendance_approved,
+         ar.reason AS attendance_reason,
          ar.updated_at AS marked_at
        FROM students s
-       LEFT JOIN (
-         SELECT
-           student_id,
-           (ARRAY_AGG(status ORDER BY updated_at DESC))[1] AS status,
-           (ARRAY_AGG(remark ORDER BY updated_at DESC))[1] AS remark,
-           MAX(updated_at) AS updated_at
-         FROM attendance_records
-         WHERE attendance_session_id = ?
-           AND reason = 'attendance_records'
-         GROUP BY student_id
-       ) ar ON ar.student_id = s.id
+       LEFT JOIN attendance_records ar
+         ON ar.student_id = s.id AND ar.attendance_session_id = ?
        WHERE s.class_id = ?
        ORDER BY s.student_code ASC`,
       [sessionId, detail.class_id]
@@ -161,55 +148,12 @@ const TeacherAttendance = {
     const detail = await this.getSessionDetailForTeacher(teacherId, sessionId);
     if (!detail) return null;
 
-    const conn = await pool.getConnection();
-    try {
-      await conn.beginTransaction();
-
-      // only replace "attendance_records" (keep personal requests etc.)
-      await conn.query(
-        `DELETE FROM attendance_records
-         WHERE attendance_session_id = ? AND reason = 'attendance_records'`,
-        [sessionId]
-      );
-
-      if (records.length > 0) {
-        const values = records.map((r) => ([
-          sessionId,
-          r.student_id,
-          takeByUserId || 0,
-          String(r.status || 'present').toLowerCase(), // enum: present/absent/late
-          r.remark || '',
-          'attendance_records',
-          1,
-          takeByUserId || 0,
-          new Date(),
-          new Date()
-        ]));
-
-        await conn.query(
-          `INSERT INTO attendance_records
-            (attendance_session_id, student_id, take_by, status, remark, reason, approved, approved_by, created_at, updated_at)
-           VALUES ?`,
-          [values]
-        );
-      }
-
-      // usually after taking attendance -> mark session completed
-      await conn.query(
-        `UPDATE attendance_sessions
-         SET status = 'completed', updated_at = NOW()
-         WHERE id = ?`,
-        [sessionId]
-      );
-
-      await conn.commit();
-      return true;
-    } catch (e) {
-      await conn.rollback();
-      throw e;
-    } finally {
-      conn.release();
-    }
+    await Attendance.saveSheet(sessionId, records, {
+      source: 'teacher',
+      markedBy: takeByUserId,
+      completeSession: true, // taking attendance completes the session
+    });
+    return true;
   },
 
   async upsertTeacherAttendance(teacherId, sessionId, { status, remark }) {

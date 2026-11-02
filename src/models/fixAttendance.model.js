@@ -46,18 +46,6 @@ const FixAttendance = {
     return rows;
   },
 
-  async findOrCreateSession({ schedule_id, session_date }) {
-    const [result] = await pool.query(
-      `INSERT INTO attendance_sessions
-         (schedule_id, session_date, status, created_at, updated_at)
-       VALUES (?, ?, 'completed', NOW(), NOW())
-       ON CONFLICT (schedule_id, session_date) DO UPDATE SET
-         updated_at = NOW()`,
-      [schedule_id, session_date]
-    );
-    return result.insertId;
-  },
-
   async getSessionDetail(attendance_session_id) {
     const [rows] = await pool.query(
       `SELECT
@@ -101,43 +89,6 @@ const FixAttendance = {
       [attendance_session_id]
     );
     return rows;
-  },
-
-  async replaceRecords(attendance_session_id, records = []) {
-    const conn = await pool.getConnection();
-    try {
-      await conn.beginTransaction();
-
-      await conn.query(
-        `DELETE FROM attendance_records WHERE attendance_session_id = ?`,
-        [attendance_session_id]
-      );
-
-      if (records.length > 0) {
-        const values = records.map(r => ([
-          attendance_session_id,
-          r.student_id,
-          r.status,
-          r.remark ?? '',
-          new Date(),
-          new Date(),
-        ]));
-
-        await conn.query(
-          `INSERT INTO attendance_records
-             (attendance_session_id, student_id, status, remark, created_at, updated_at)
-           VALUES ?`,
-          [values]
-        );
-      }
-
-      await conn.commit();
-    } catch (err) {
-      await conn.rollback();
-      throw err;
-    } finally {
-      conn.release();
-    }
   },
 };
 

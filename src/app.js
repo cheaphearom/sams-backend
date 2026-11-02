@@ -13,6 +13,7 @@ const swaggerSpec = require('./swagger');
 const notFound = require('./middleware/notFound');
 const errorHandler = require('./middleware/errorHandler');
 const { serveFile } = require('./utils/fileStore');
+const { ensureMigrated } = require('./config/migrations');
 
 // Routes
 const authRoutes = require('./routes/auth.routes');
@@ -78,6 +79,10 @@ app.use(express.json());
 // Static files
 // Uploads live in the database (see utils/fileStore.js); files that were
 // committed to the uploads/ folder before that are still served from disk
+// Apply pending database migrations (database/migrations) before the first
+// request that needs the database, so a deploy never runs against an old schema
+app.use(['/api', '/uploads'], ensureMigrated);
+
 app.get('/uploads/:folder/:filename', serveFile);
 app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 

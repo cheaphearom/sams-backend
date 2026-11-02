@@ -1,4 +1,5 @@
 const pool = require("../config/db");
+const Attendance = require("../services/attendance.service");
 
 const AttendanceRecords = {
   async getBySchedule(schedule_id) {
@@ -34,7 +35,7 @@ const AttendanceRecords = {
     if (students.length === 0) return { student: null, record: null };
 
     const [records] = await pool.query(
-      `SELECT id, take_by, reason, approved FROM attendance_records
+      `SELECT id, source, reason, approved FROM attendance_records
        WHERE attendance_session_id = ? AND student_id = ?
        ORDER BY id DESC LIMIT 1`,
       [attendance_session_id, students[0].id]
@@ -42,82 +43,6 @@ const AttendanceRecords = {
     return { student: students[0], record: records[0] || null };
   },
 
-  async upsert({
-    schedule_id,
-    attendance_session_id,
-    user_id,
-    status,
-    remark,
-    reason,
-    approved,
-  }) {
-    // 1. Get student_id from user_id
-    const [rowsStudent] = await pool.query(
-      `
-      SELECT s.id AS student_id
-      FROM students s
-      JOIN users u ON s.user_id = u.id
-      WHERE u.id = ?
-      LIMIT 1
-      `,
-      [user_id]
-    );
-
-    if (rowsStudent.length === 0) {
-      throw new Error("Student not found for this user");
-    }
-
-    const student_id = rowsStudent[0].student_id;
-
-    // 2. Check existing attendance record
-    const [rows] = await pool.query(
-      `
-      SELECT ar.id
-      FROM attendance_records ar
-      WHERE ar.attendance_session_id = ?
-        AND ar.student_id = ?
-      LIMIT 1
-      `,
-      [attendance_session_id, student_id]
-    );
-
-    // 3. Update if exists
-    if (rows.length > 0) {
-      const id = rows[0].id;
-
-      await pool.query(
-        `
-        UPDATE attendance_records
-        SET status = ?, remark = ?, reason = COALESCE(?, reason), updated_at = NOW()
-        WHERE id = ?
-        `,
-        [status, remark ?? '', reason || null, id]
-      );
-
-      return this.findById(id);
-    }
-
-    // 4. Insert new attendance
-    const [result] = await pool.query(
-      `
-      INSERT INTO attendance_records 
-        (attendance_session_id, student_id, take_by, status, remark, reason, approved)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
-      `,
-      [
-        attendance_session_id,
-        student_id,
-        student_id,
-        status,
-        remark ?? '',
-        reason || 'attendance_records',
-        approved ? 1 : 0,
-      ]
-    );
-
-    return this.findById(result.insertId);
-  },
-  
   async getAllApprovedZero(start_date = null, end_date = null, teacher_id = null) {
     let query = `
       SELECT 
@@ -175,20 +100,6 @@ const AttendanceRecords = {
 
     return rows;
   },
-
-  async approved(id, approved, user_id) {
-    const [result] = await pool.query(
-      `UPDATE attendance_records
-      SET take_by = ?, approved = ?, approved_by = ?, updated_at = NOW()
-      WHERE id = ?`,
-      [user_id, approved, user_id, id]
-    );
-
-    if (!result.affectedRows) return null;
-
-    return this.findById(id);
-  },
-
 
   async remove(id) {
     await pool.query("DELETE FROM attendance_records WHERE id = ?", [id]);
@@ -335,25 +246,15 @@ const AttendanceRecords = {
       throw err;
     }
 
-    try {
-      const [result] = await pool.query(
-        `
-      INSERT INTO attendance_records (attendance_session_id, student_id, status, remark)
-      VALUES (?, ?, ?, ?)
-      `,
-        [attendance_session_id, student_id, status, remark]
-      );
-
-      return this.findById(result.insertId);
-    } catch (e) {
-      // two check-ins at the same moment, stopped by uq_attendance_records_session_student
-      if (e.code === "23505") {
-        const err = new Error("You already checked in for this session.");
-        err.statusCode = 409;
-        throw err;
-      }
-      throw e;
-    }
+    const id = await Attendance.recordAttendance({
+      sessionId: attendance_session_id,
+      studentId: student_id,
+      status,
+      remark,
+      source: 'face',
+      markedBy: user_id,
+    });
+    return this.findById(id);
   },
 };
 module.exports = AttendanceRecords;
