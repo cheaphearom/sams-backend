@@ -232,6 +232,8 @@ CREATE TABLE attendance_records (
   created_at TIMESTAMP(0) NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Later changes live in database/migrations/*.sql and are applied automatically
+-- by the app (or with npm run db:migrate), e.g. attendance_records.source / marked_by.
 -- One record per student per session (database/migrations/001_attendance_records_unique.sql)
 CREATE UNIQUE INDEX uq_attendance_records_session_student ON attendance_records (attendance_session_id, student_id);
 

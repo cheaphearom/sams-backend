@@ -1,4 +1,5 @@
 const FixAttendance = require('../models/fixAttendance.model');
+const Attendance = require('../services/attendance.service');
 const { assertCanManageClass, classIdOfSchedule } = require('../utils/access');
 
 // Teachers may only fix attendance for classes they teach
@@ -26,7 +27,11 @@ exports.getFixData = async (req, res, next) => {
     if (classId == null) return res.status(404).json({ message: 'Schedule not found' });
     await assertCanManageClass(req.user, classId);
 
-    const attendance_session_id = await FixAttendance.findOrCreateSession({ schedule_id, session_date });
+    const attendance_session_id = await Attendance.getOrCreateSession({
+      schedule_id,
+      session_date,
+      status: 'completed',
+    });
     const session = await FixAttendance.getSessionDetail(attendance_session_id);
 
     if (!session) {
@@ -57,9 +62,16 @@ exports.submitFix = async (req, res, next) => {
       return res.status(400).json({ message: 'records must be an array' });
     }
 
-    const attendance_session_id = await FixAttendance.findOrCreateSession({ schedule_id, session_date });
+    const attendance_session_id = await Attendance.getOrCreateSession({
+      schedule_id,
+      session_date,
+      status: 'completed',
+    });
 
-    await FixAttendance.replaceRecords(attendance_session_id, records);
+    await Attendance.saveSheet(attendance_session_id, records, {
+      source: req.user.role === 'admin' ? 'admin' : 'teacher',
+      markedBy: req.user.id,
+    });
 
     res.json({ message: 'Attendance fixed successfully', attendance_session_id });
   } catch (err) {

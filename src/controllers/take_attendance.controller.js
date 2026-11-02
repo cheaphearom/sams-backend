@@ -1,4 +1,5 @@
 const TakeAttendance = require('../models/take_attendance.model');
+const Attendance = require('../services/attendance.service');
 
 exports.getClasses = async (req, res, next) => {
   try {
@@ -65,16 +66,15 @@ exports.submit = async (req, res, next) => {
       return res.status(400).json({ message: 'records must be an array' });
     }
 
-    const attendance_session_id = await TakeAttendance.findOrCreateSession({
-      schedule_id,
-      session_date,
-      start_time,
-      end_time,
-      status: status || 'completed',
-      topic,
-    });
+    const attendance_session_id = await Attendance.getOrCreateSession(
+      { schedule_id, session_date, start_time, end_time, status: status || 'completed', topic },
+      { overwrite: true }
+    );
 
-    await TakeAttendance.replaceRecords(attendance_session_id, records);
+    await Attendance.saveSheet(attendance_session_id, records, {
+      source: 'admin',
+      markedBy: req.user.id,
+    });
 
     res.json({ message: 'Attendance saved', attendance_session_id });
   } catch (err) {
