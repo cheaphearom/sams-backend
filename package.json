@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
-    "db:import": "node scripts/import-to-neon.js"
+    "db:import": "node scripts/import-to-neon.js",
+    "db:migrate": "node scripts/migrate.js"
   },
   "dependencies": {
     "@sendgrid/mail": "^8.1.6",

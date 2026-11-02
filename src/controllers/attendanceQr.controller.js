@@ -8,6 +8,41 @@ const { getDistanceInMeters } = require("../utils/distanceInMeters");
 const QRCode = require('qrcode');
 const { saveFile } = require('../utils/fileStore');
 
+// Marks the student present for the session, updating their record if one exists
+async function upsertQrRecord(sessionId, studentId) {
+  const update = async () => {
+    const [rows] = await pool.query(
+      `SELECT id FROM attendance_records
+       WHERE attendance_session_id = ? AND student_id = ?
+       ORDER BY id DESC LIMIT 1`,
+      [sessionId, studentId]
+    );
+    if (rows.length === 0) return false;
+    await pool.query(
+      `UPDATE attendance_records
+       SET status = 'present', remark = 'scan QR', reason = 'attendance_records',
+           approved = 1, take_by = ?, updated_at = NOW()
+       WHERE id = ?`,
+      [studentId, rows[0].id]
+    );
+    return true;
+  };
+
+  if (await update()) return;
+  try {
+    await pool.query(
+      `INSERT INTO attendance_records
+         (attendance_session_id, student_id, take_by, status, remark, reason, approved)
+       VALUES (?, ?, ?, 'present', 'scan QR', 'attendance_records', 1)`,
+      [sessionId, studentId, studentId]
+    );
+  } catch (err) {
+    // Two scans at the same moment: the unique index stopped the second insert
+    if (err.code !== '23505') throw err;
+    await update();
+  }
+}
+
 // Helper function to resolve teacher ID
 async function resolveTeacherId(req) {
   if (req.user?.role === 'teacher') {
@@ -173,15 +208,10 @@ exports.checkInByQr = async (req, res) => {
      ON CONFLICT (attendance_session_id, student_id) DO UPDATE SET status='PRESENT', checked_in_at=NOW(), method='QR'`,
     [sid, student.id] // student.id = students table PK
   );
-  // 6. Insert new attendance
-  await pool.query(
-      `
-      INSERT INTO attendance_records 
-        (attendance_session_id, student_id, take_by, status, remark, reason, approved)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
-      `,
-      [sid, student.id, student.id, "present", "scan QR", "attendance_records", 1]
-    );
+  // 6) One attendance record per student per session: scanning again, or
+  // scanning after a leave request or a teacher's mark, updates that record
+  await upsertQrRecord(sid, student.id);
+
   return res.json({
     success: true,
     message: "Checked in successfully",
