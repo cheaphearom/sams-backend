@@ -6,8 +6,12 @@ const Users = {
     return rows[0] || null;
   },
 
+  // Never select password_hash here, the result is sent back in API responses
   async findById(id) {
-    const [rows] = await pool.query('SELECT * FROM users WHERE id = ?', [id]);
+    const [rows] = await pool.query(
+      'SELECT id, name, email, avatar, first_name, last_name, image, role, created_at, updated_at FROM users WHERE id = ?',
+      [id]
+    );
     return rows[0] || null;
   },
 

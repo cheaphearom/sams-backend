@@ -3,7 +3,7 @@ const pool = require('../config/db');
 const Students = {
   async getAll() {
     const [rows] = await pool.query(
-      `SELECT s.*, u.name AS user_name, u.email,u.password_hash, c.name AS class_name
+      `SELECT s.*, u.name AS user_name, u.email, c.name AS class_name
        FROM students s
        JOIN users u ON s.user_id = u.id
        JOIN classes c ON s.class_id = c.id
@@ -14,7 +14,7 @@ const Students = {
 
   async findById(id) {
     const [rows] = await pool.query(
-      `SELECT s.*, u.name AS user_name, u.email, u.password_hash, c.name AS class_name
+      `SELECT s.*, u.name AS user_name, u.email, c.name AS class_name
        FROM students s
        JOIN users u ON s.user_id = u.id
        JOIN classes c ON s.class_id = c.id
@@ -26,7 +26,7 @@ const Students = {
 
   async findByUserId(id) {
     const [rows] = await pool.query(
-      `SELECT s.*, u.name AS user_name, u.email, u.password_hash
+      `SELECT s.*, u.name AS user_name, u.email
        FROM students s
        JOIN users u ON s.user_id = u.id
        WHERE u.id = ?`,

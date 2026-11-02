@@ -2,26 +2,18 @@ const express = require('express');
 const router = express.Router();
 const controller = require('../controllers/schools.controller');
 const auth = require('../middleware/auth');
-const multer = require('multer');
+const { uploadImage } = require('../utils/fileStore');
 
-// STORAGE CONFIG
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, 'uploads/schools'),
-  filename: (req, file, cb) => {
-    const ext = file.originalname.split('.').pop();
-    cb(null, Date.now() + '.' + ext);
-  }
-});
-
-const upload = multer({ storage });
+// Images are saved in the database (Vercel can't write to uploads/), served at /uploads/schools/<filename>
+const upload = uploadImage('schools');
 
 // ✅ public GET routes (no auth)
 router.get('/', controller.getAll);
 router.get('/:id', controller.getOne);
 
 // admin only (with image)
-router.post('/', auth('admin'), upload.single('image'), controller.create);
-router.put('/:id', auth('admin'), upload.single('image'), controller.update);
+router.post('/', auth('admin'), upload, controller.create);
+router.put('/:id', auth('admin'), upload, controller.update);
 router.delete('/:id', auth('admin'), controller.remove);
 
 module.exports = router;

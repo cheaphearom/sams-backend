@@ -12,6 +12,7 @@ const swaggerSpec = require('./swagger');
 // Middleware
 const notFound = require('./middleware/notFound');
 const errorHandler = require('./middleware/errorHandler');
+const { serveFile } = require('./utils/fileStore');
 
 // Routes
 const authRoutes = require('./routes/auth.routes');
@@ -75,6 +76,9 @@ app.use(morgan('dev'));
 app.use(express.json());
 
 // Static files
+// Uploads live in the database (see utils/fileStore.js); files that were
+// committed to the uploads/ folder before that are still served from disk
+app.get('/uploads/:folder/:filename', serveFile);
 app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 
 // Mount routes
