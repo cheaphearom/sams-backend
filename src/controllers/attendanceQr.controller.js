@@ -6,8 +6,7 @@ const Schools = require('../models/schools.model');
 const { createToken, verifyToken } = require("../utils/qrToken");
 const { getDistanceInMeters } = require("../utils/distanceInMeters");
 const QRCode = require('qrcode');
-const fs = require('fs');
-const path = require('path');
+const { saveFile } = require('../utils/fileStore');
 
 // Helper function to resolve teacher ID
 async function resolveTeacherId(req) {
@@ -66,15 +65,15 @@ exports.createQrForSession = async (req, res) => {
     exp: expiresAt.getTime(),
   });
 
-  // 4) Generate QR code image and store it
-  const qrImagePath = path.join(__dirname, `../../uploads/qrcodes/qr_${attendance_session_id}.png`);
+  // 4) Generate QR code image and store it in the database (Vercel can't write files)
+  const qrImageName = `qr_${attendance_session_id}.png`;
 
   try {
-    // Generate the QR code and save it to the file system
-    await QRCode.toFile(qrImagePath, token);
+    const qrBuffer = await QRCode.toBuffer(token);
+    await saveFile(`qrcodes/${qrImageName}`, qrBuffer, "image/png");
 
     // 5) Return the URL of the generated QR code image
-    const qrImageUrl = `/uploads/qrcodes/qr_${attendance_session_id}.png`;
+    const qrImageUrl = `/uploads/qrcodes/${qrImageName}`;
 
     return res.json({
       success: true,
